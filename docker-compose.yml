@@ -1,18 +1,29 @@
-version: "3.8"
+version: "3.9"
 
 services:
+  db:
+    container_name: postgres
+    restart: always
+    image: postgres:14
+    ports:
+      - "5432:5432"
+    volumes:
+      - flask-db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=restsdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
   app:
-    build: .
+    container_name: app
+    restart: always
+    build:
+      context: .
+      network: host
     ports:
       - "80:5000"
-    environment:
-      POSTGRES_PASSWORD: secret
-      POSTGRES_DB: restaurants
+    depends_on:
+      - postgres
 
-    # image: nginx
-  db:
-    image: postgres:14
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: secret
-      POSTGRES_DB: restaurants
+volumes:
+  flask-db:
+    name: flask-db
